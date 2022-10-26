@@ -1,0 +1,29 @@
+.code16
+.globl _init
+
+_init:
+	mov $0x0A00, %ax
+	call _print_num
+	hlt
+	
+_print_num: 
+	test %ax, %ax
+	jnz _print_dig
+	ret
+_print_dig:
+	movb $10, %bl
+	div %bl
+	movw %ax, %bx
+	add $0x30, %ah
+	movb %ah, %al
+	movb $0xE, %ah
+	int $0x10
+	movw %bx, %ax
+	movb $0, %ah
+	jmp _print_num
+
+str_begin : .asciz "Hello World!"
+str_end : 
+
+.fill (510 -(. - _init)),1,0
+.word 0xaa55
