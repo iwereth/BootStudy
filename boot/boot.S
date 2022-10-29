@@ -4,7 +4,9 @@ _fix :
 _init:
 	xor %bp,%bp
 	movw %bp, %ds #zero the data segment
-
+	movw $0,%ax
+	call _error
+	hlt
 _error:
 	xor %bp,%bp
 	movw %bp,%es #zero the extended segment, just in case
@@ -20,11 +22,11 @@ _error:
 	movb $0, %bh
 	movw $0x0707, %dx
 	int $0x10 
-	hlt
+	ret
 
 error_str_table:
-	.word $ram_avail_err
-	.word $(ram_avail_err_end - ram_avail_err)
+	.word ram_avail_err
+	.word ram_avail_err_end - ram_avail_err
 
 ram_avail_err : .asciz "Could not get available RAM"
 ram_avail_err_end :
