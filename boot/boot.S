@@ -26,11 +26,15 @@ _mem_check_done:
 	push %ax
 	movw $ram_avail_str, %ax
 	movw $(ram_avail_str_end - ram_avail_str), %bx
+	movw $0,%dx
 	call print_str
 	pop %ax
 	movw $0, %dx
 	call print_num
-	call _halt
+	movw $1, %ax
+	movw $1, %dx
+	call _error
+	jmp _halt
 
 _err_halt:
 	call _error
@@ -67,7 +71,7 @@ print_str:
 	movw %bx, 0x502  #size of string
 	movb $0, %bh
 	movb $0x03, %ah
-	and %dx, %dx
+	test %dx, %dx
 	jnz _newline
 	int $0x10
 	jmp _print_now
@@ -111,10 +115,14 @@ _print_num:
 error_str_table:
 	.word ram_avail_err
 	.word ram_avail_err_end - ram_avail_err
+	.word ext_mode_err
+	.word ext_mode_err_end - ext_mode_err
 ram_avail_str: .ascii "RAM available is (in KBs) " 
 ram_avail_str_end:
 ram_avail_err: .ascii "Could not get available RAM"
 ram_avail_err_end:
+ext_mode_err: .ascii "Extension not available"
+ext_mode_err_end:
 
 .fill (510 - (. - _init)),1,0
 .word 0xaa55
