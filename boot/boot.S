@@ -31,10 +31,13 @@ _mem_check_done:
 	pop %ax
 	movw $0, %dx
 	call print_num
+	movb $0x41, %ah
+	movw $0x55AA, %bx
+	movb $0x80, %dl
+	clc
+	int $0x13
+	jc _halt
 	movw $1, %ax
-	movw $1, %dx
-	call _error
-	jmp _halt
 
 _err_halt:
 	call _error
@@ -51,6 +54,7 @@ _halt:
 #error output %ax = error code (0 for not being able to get free RAM)
 ################
 _error:
+	push %dx
 	movw $4, %bx
 	mul %bx
 	movw %ax, %bx
@@ -58,6 +62,7 @@ _error:
 	movw (%bx), %ax
 	add $2, %bx
 	movw (%bx), %bx
+	pop %dx
 	jmp print_str
 
 
@@ -83,7 +88,7 @@ _print_now:
 	movb $0x1, %al
 	movb $0x13, %ah
 	movb $0, %bh
-	movb $1, %bl
+	movb $7, %bl
 	movw 0x502(,1), %cx
 	movw 0x500(,1), %bp
 	int $0x10
